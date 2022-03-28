@@ -15,12 +15,30 @@ public class Driver {
 */
         int[][] cityRGB = new int[10][500*500];
         int[][] villageRGB = new int[10][500*500];
+        int[][] cityTraining = new int[10][3*500*500];
+        int[][] villageTraining = new int[10][3*500*500];
 
         for (int i=1; i<11;i++){
             BufferedImage city = ImageIO.read(new File("cityTraining\\"+i+".png"));
             BufferedImage village = ImageIO.read(new File("villageTraining\\"+i+".png"));
             cityRGB[i-1] = city.getRGB(0,0,500,500,null,0,500);
+            for(int j=0; j<cityRGB[i-1].length;j++){
+                int r = (cityRGB[i-1][j]>>16)&0xff;
+                int g = (cityRGB[i-1][j]>>8)&0xff;
+                int b = cityRGB[i-1][j]&0xff;
+                cityTraining[i-1][j*3] = r;
+                cityTraining[i-1][j*3+1] = g;
+                cityTraining[i-1][j*3+2] = b;
+            }
             villageRGB[i-1] = village.getRGB(0,0,500,500,null,0,500);
+            for(int j=0; j<villageRGB[i-1].length;j++){
+                int r = (villageRGB[i-1][j]>>16)&0xff;
+                int g = (villageRGB[i-1][j]>>8)&0xff;
+                int b = villageRGB[i-1][j]&0xff;
+                villageTraining[i-1][j*3] = r;
+                villageTraining[i-1][j*3+1] = g;
+                villageTraining[i-1][j*3+2] = b;
+            }
         }
         int cityCorrect = 0;
         int villageCorrect = 0;
@@ -34,10 +52,10 @@ public class Driver {
             int count = 0;
             for (int j =0; j<10; j++)
                 if(i!=j){
-                    distances[count] = distance(cityRGB[j], cityRGB[i] );
+                    distances[count] = distance(cityTraining[j], cityTraining[i] );
                     type[count] = 0;
                     count++;
-                    distances[count] = distance(villageRGB[j], cityRGB[i] );
+                    distances[count] = distance(villageTraining[j], cityTraining[i] );
                     type[count] = 1;
                     count++;
                 }
@@ -59,9 +77,9 @@ public class Driver {
                 knn[type[k]]++;
 
             if(knn[0] > knn[1]) {
-                System.out.println("city "+i+" correct");
+                System.out.println("city "+(i+1)+" correct");
                 cityCorrect++;
-            } else System.out.println("wrong");
+            } else System.out.println("city "+(i+1)+" wrong");
         }
 
         //village testing
@@ -72,10 +90,10 @@ public class Driver {
             int count = 0;
             for (int j =0; j<10; j++)
                 if(i!=j){
-                    distances[count] = distance(cityRGB[j], villageRGB[i] );
+                    distances[count] = distance(cityTraining[j], villageTraining[i] );
                     type[count] = 0;
                     count++;
-                    distances[count] = distance(villageRGB[j], villageRGB[i] );
+                    distances[count] = distance(villageTraining[j], villageTraining[i] );
                     type[count] = 1;
                     count++;
                 }
@@ -93,13 +111,13 @@ public class Driver {
                     }
 
             int[] knn = new int[2];
-            for(int k=0; k<3;k++)
+            for(int k=0; k<1;k++)
                 knn[type[k]]++;
 
             if(knn[0] < knn[1]) {
-                System.out.println("village "+i+" correct");
+                System.out.println("village "+(i+1)+" correct");
                 villageCorrect++;
-            } else System.out.println("wrong");
+            } else System.out.println("village "+(i+1)+" wrong");
         }
 
         System.out.println("city: "+cityCorrect+"\nvillage: "+villageCorrect);
